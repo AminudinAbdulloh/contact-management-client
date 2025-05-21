@@ -161,10 +161,10 @@ export default function ContactDetail() {
                   </p>
                 </div>
                 <div className="flex justify-end space-x-3">
-                  <a href="edit_address.html"
+                  <Link to={`/dashboard/contacts/${id}/addresses/${address.id}/edit`}
                      className="px-4 py-2 bg-gradient text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md flex items-center">
                     <i className="fas fa-edit mr-2"></i> Edit
-                  </a>
+                  </Link>
                   <button
                     className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 font-medium shadow-md flex items-center">
                     <i className="fas fa-trash-alt mr-2"></i> Delete
