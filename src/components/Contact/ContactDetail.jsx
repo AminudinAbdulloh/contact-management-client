@@ -1,7 +1,7 @@
 import {Link, useParams} from "react-router";
 import {useState} from "react";
 import {contactDetail} from "../../lib/api/ContactApi.js";
-import {alertConfirm, alertError, alertSuccess} from "../../lib/alert.js";
+import {alertConfirm, alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 import {useEffectOnce, useLocalStorage} from "react-use";
 import {addressDelete, addressList} from "../../lib/api/AddressApi.js";
 
@@ -41,15 +41,23 @@ export default function ContactDetail() {
       return;
     }
 
-    const response = await addressDelete(token, id, addressId);
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    if (response.status === 200) {
-      await alertSuccess("Address deleted successfully");
-      await fetchAddresses();
-    } else {
-      await alertError(responseBody.errors);
+    alertLoading("Deleting address...");
+  
+    try {
+      const response = await addressDelete(token, id, addressId);
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+  
+      if (response.status === 200) {
+        await alertSuccess("Address deleted successfully");
+        await fetchAddresses();
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while deleting address");
     }
   }
 

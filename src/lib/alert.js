@@ -28,3 +28,20 @@ export const alertConfirm = async (message) => {
   })
   return result.isConfirmed;
 }
+
+export const alertLoading = (message = "Loading...") => {
+  return Swal.fire({
+    title: message,
+    text: "Please wait",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading()
+    }
+  })
+}
+
+export const closeLoading = () => {
+  Swal.close()
+}

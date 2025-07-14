@@ -2,7 +2,7 @@ import {Link, useNavigate, useParams} from "react-router";
 import {useEffectOnce, useLocalStorage} from "react-use";
 import {useState} from "react";
 import {contactDetail} from "../../lib/api/ContactApi.js";
-import {alertError, alertSuccess} from "../../lib/alert.js";
+import {alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 import {addressCreate} from "../../lib/api/AddressApi.js";
 
 export default function AddressCreate() {
@@ -19,18 +19,25 @@ export default function AddressCreate() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    const response = await addressCreate(token, id, {street, city, province, country, postal_code});
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    if (response.status === 200) {
-      await alertSuccess("Address created successfully");
-      await navigate({
-        pathname: `/dashboard/contacts/${id}`
-      })
-    } else {
-      await alertError(responseBody.errors);
+    alertLoading("Creating address...");
+  
+    try {
+      const response = await addressCreate(token, id, {street, city, province, country, postal_code});
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+  
+      if (response.status === 200) {
+        await alertSuccess("Address created successfully");
+        await navigate({
+          pathname: `/dashboard/contacts/${id}`
+        });
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while creating address");
     }
   }
 

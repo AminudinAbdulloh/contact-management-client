@@ -1,7 +1,7 @@
 import {Link, useNavigate} from "react-router";
 import {useState} from "react";
 import {userLogin} from "../../lib/api/UserApi.js";
-import {alertError} from "../../lib/alert.js";
+import {alertError, alertLoading, closeLoading} from "../../lib/alert.js";
 import {useLocalStorage} from "react-use";
 
 export default function UserLogin() {
@@ -13,19 +13,26 @@ export default function UserLogin() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    alertLoading("Signing in...");
 
-    const response = await userLogin({username, password});
-    const responseBody = await response.json();
-    console.log(responseBody);
+    try {
+      const response = await userLogin({username, password});
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
 
-    if (response.status === 200) {
-      const token = responseBody.data.token;
-      setToken(token);
-      await navigate({
-        pathname: "/dashboard/contacts"
-      });
-    } else {
-      await alertError(responseBody.errors);
+      if (response.status === 200) {
+        const token = responseBody.data.token;
+        setToken(token);
+        await navigate({
+          pathname: "/dashboard/contacts"
+        });
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred. Please try again.");
     }
   }
 

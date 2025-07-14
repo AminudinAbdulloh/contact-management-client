@@ -1,7 +1,7 @@
 import {useEffectOnce, useLocalStorage} from "react-use";
 import {useEffect, useState} from "react";
 import {contactDelete, contactList} from "../../lib/api/ContactApi.js";
-import {alertConfirm, alertError, alertSuccess} from "../../lib/alert.js";
+import {alertConfirm, alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 import {Link} from "react-router";
 
 export default function ContactList() {
@@ -51,16 +51,24 @@ export default function ContactList() {
     if (!await alertConfirm("Are you sure you want to delete this contact?")) {
       return;
     }
-
-    const response = await contactDelete(token, id);
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    if (response.status === 200) {
-      await alertSuccess("Contact deleted successfully");
-      setReload(!reload);
-    } else {
-      await alertError(responseBody.errors);
+  
+    alertLoading("Deleting contact...");
+  
+    try {
+      const response = await contactDelete(token, id);
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+  
+      if (response.status === 200) {
+        await alertSuccess("Contact deleted successfully");
+        setReload(!reload);
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while deleting contact");
     }
   }
 

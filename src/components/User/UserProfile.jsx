@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {userDetail, userUpdatePassword, userUpdateProfile} from "../../lib/api/UserApi.js";
 import {useEffectOnce, useLocalStorage} from "react-use";
-import {alertError, alertSuccess} from "../../lib/alert.js";
+import {alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 
 export default function UserProfile() {
 
@@ -24,15 +24,22 @@ export default function UserProfile() {
 
   async function handleSubmitProfile(e) {
     e.preventDefault();
+    alertLoading("Updating profile...");
 
-    const response = await userUpdateProfile(token, {name});
-    const responseBody = await response.json();
-    console.log(responseBody);
+    try {
+      const response = await userUpdateProfile(token, {name});
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
 
-    if (response.status === 200) {
-      await alertSuccess("Profile updated successfully");
-    } else {
-      await alertError(responseBody.errors);
+      if (response.status === 200) {
+        await alertSuccess("Profile updated successfully");
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while updating profile");
     }
   }
 
@@ -44,16 +51,28 @@ export default function UserProfile() {
       return;
     }
 
-    const response = await userUpdatePassword(token, {password});
-    const responseBody = await response.json();
-    console.log(responseBody);
+    // Show loading alert
+    alertLoading("Updating password...");
 
-    if (response.status === 200) {
-      setPassword('');
-      setConfirmPassword('');
-      await alertSuccess("Password updated successfully");
-    } else {
-      await alertError(responseBody.errors);
+    try {
+      const response = await userUpdatePassword(token, {password});
+      const responseBody = await response.json();
+      console.log(responseBody);
+
+      // Close loading alert
+      closeLoading();
+
+      if (response.status === 200) {
+        setPassword('');
+        setConfirmPassword('');
+        await alertSuccess("Password updated successfully");
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      // Close loading alert if there's an error
+      closeLoading();
+      await alertError("An error occurred while updating password");
     }
   }
 

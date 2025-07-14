@@ -2,7 +2,7 @@ import {Link, useNavigate} from "react-router";
 import {useState} from "react";
 import {contactCreate} from "../../lib/api/ContactApi.js";
 import {useLocalStorage} from "react-use";
-import {alertError, alertSuccess} from "../../lib/alert.js";
+import {alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 
 export default function ContactCreate() {
 
@@ -15,18 +15,25 @@ export default function ContactCreate() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    const response = await contactCreate(token, {first_name, last_name, email, phone});
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    if (response.status === 200) {
-      await alertSuccess("Contact created successfully");
-      navigate({
-        pathname: "/dashboard/contacts"
-      });
-    } else {
-      await alertError(responseBody.errors);
+    alertLoading("Creating contact...");
+  
+    try {
+      const response = await contactCreate(token, {first_name, last_name, email, phone});
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+  
+      if (response.status === 200) {
+        await alertSuccess("Contact created successfully");
+        navigate({
+          pathname: "/dashboard/contacts"
+        });
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while creating contact");
     }
   }
 

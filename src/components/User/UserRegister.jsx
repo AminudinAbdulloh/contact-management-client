@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {alertError, alertSuccess} from "../../lib/alert.js";
+import {alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 import {userRegister} from "../../lib/api/UserApi.js";
 import {Link, useNavigate} from "react-router";
 
@@ -19,21 +19,29 @@ export default function UserRegister() {
       return;
     }
 
-    const response = await userRegister({
-      username: username,
-      password: password,
-      name: name
-    });
-    const responseBody = await response.json();
-    console.log(responseBody);
+    alertLoading("Creating account...");
 
-    if (response.status === 200) {
-      await alertSuccess("User created successfully");
-      await navigate({
-        pathname: "/login"
+    try {
+      const response = await userRegister({
+        username: username,
+        password: password,
+        name: name
       });
-    } else {
-      await alertError(responseBody.errors);
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+
+      if (response.status === 200) {
+        await alertSuccess("User created successfully");
+        await navigate({
+          pathname: "/login"
+        });
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred during registration. Please try again.");
     }
   }
 

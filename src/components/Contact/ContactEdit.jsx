@@ -2,7 +2,7 @@ import {Link, useParams} from "react-router";
 import {useState} from "react";
 import {contactDetail, contactUpdate} from "../../lib/api/ContactApi.js";
 import {useEffectOnce, useLocalStorage} from "react-use";
-import {alertError, alertSuccess} from "../../lib/alert.js";
+import {alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 
 export default function ContactEdit() {
 
@@ -30,15 +30,22 @@ export default function ContactEdit() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    const response = await contactUpdate(token, {id, first_name, last_name, email, phone});
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    if (response.status === 200) {
-      await alertSuccess("Contact updated successfully");
-    } else {
-      await alertError(responseBody.errors);
+    alertLoading("Updating contact...");
+  
+    try {
+      const response = await contactUpdate(token, {id, first_name, last_name, email, phone});
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+  
+      if (response.status === 200) {
+        await alertSuccess("Contact updated successfully");
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while updating contact");
     }
   }
 

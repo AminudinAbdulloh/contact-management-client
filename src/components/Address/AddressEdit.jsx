@@ -2,7 +2,7 @@ import {Link, useParams} from "react-router";
 import {useEffectOnce, useLocalStorage} from "react-use";
 import {useState} from "react";
 import {addressDetail, addressUpdate} from "../../lib/api/AddressApi.js";
-import {alertError, alertSuccess} from "../../lib/alert.js";
+import {alertError, alertSuccess, alertLoading, closeLoading} from "../../lib/alert.js";
 import {contactDetail} from "../../lib/api/ContactApi.js";
 
 export default function AddressEdit() {
@@ -18,15 +18,22 @@ export default function AddressEdit() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    const response = await addressUpdate(token, id, {addressId, street, city, province, country, postal_code});
-    const responseBody = await response.json();
-    console.log(responseBody);
-
-    if (response.status === 200) {
-      await alertSuccess("Address updated successfully");
-    } else {
-      await alertError(responseBody.errors);
+    alertLoading("Updating address...");
+  
+    try {
+      const response = await addressUpdate(token, id, {addressId, street, city, province, country, postal_code});
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+  
+      if (response.status === 200) {
+        await alertSuccess("Address updated successfully");
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred while updating address");
     }
   }
 

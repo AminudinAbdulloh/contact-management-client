@@ -1,6 +1,6 @@
 import {useEffectOnce, useLocalStorage} from "react-use";
 import {userLogout} from "../../lib/api/UserApi.js";
-import {alertError} from "../../lib/alert.js";
+import {alertError, alertLoading, closeLoading} from "../../lib/alert.js";
 import {useNavigate} from "react-router";
 
 export default function UserLogout() {
@@ -9,17 +9,25 @@ export default function UserLogout() {
   const navigate = useNavigate();
 
   async function handleLogout() {
-    const response = await userLogout(token);
-    const responseBody = await response.json();
-    console.log(responseBody);
+    alertLoading("Logging out...");
 
-    if (response.status === 200) {
-      setToken("");
-      await navigate({
-        pathname: "/login"
-      })
-    } else {
-      await alertError(responseBody.errors);
+    try {
+      const response = await userLogout(token);
+      const responseBody = await response.json();
+      console.log(responseBody);
+      closeLoading();
+
+      if (response.status === 200) {
+        setToken("");
+        await navigate({
+          pathname: "/login"
+        })
+      } else {
+        await alertError(responseBody.errors);
+      }
+    } catch (error) {
+      closeLoading();
+      await alertError("An error occurred during logout. Please try again.");
     }
   }
 
