@@ -1,6 +1,5 @@
 {
   "name": "belajar-reactjs-contact-management",
-  "homepage": "https://AminudinAbdulloh.github.io/contact-management-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,14 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router": "^7.6.0",
+    "react-router-dom": "^7.6.3",
     "react-use": "^17.6.0",
     "sweetalert2": "^11.21.1"
   },
